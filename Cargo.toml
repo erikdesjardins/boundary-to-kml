@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+env_logger = { version = "0.11", default-features = false, features = ["humantime"] }
+geo = "0.33"
+image = { version = "0.25", default-features = false, features = ["png"] }
+log = "0.4"
