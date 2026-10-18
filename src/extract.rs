@@ -31,8 +31,8 @@ pub fn run<R: BufRead + Seek>(bounds: Rect, input: &mut R) -> Result<Vec<Point>,
             for x in x_range.clone() {
                 for y in y_range.clone() {
                     if *image.get_pixel(x, y) == LINE_COLOR {
-                        x_mass += x - x_range.start;
-                        y_mass += y - y_range.start;
+                        x_mass += x;
+                        y_mass += y;
                         count += 1u32;
                     }
                 }
@@ -40,18 +40,13 @@ pub fn run<R: BufRead + Seek>(bounds: Rect, input: &mut R) -> Result<Vec<Point>,
 
             if count > 0 {
                 Some((
-                    f64::from(x_mass) / f64::from(count) / f64::from(x_range.end - x_range.start),
-                    f64::from(y_mass) / f64::from(count) / f64::from(y_range.end - y_range.start),
+                    f64::from(x_mass) / f64::from(count) / f64::from(image.width()),
+                    f64::from(y_mass) / f64::from(count) / f64::from(image.height()),
                 ))
             } else {
                 None
             }
         };
-
-    dbg!(bounds.min());
-    dbg!(bounds.max());
-    dbg!(bounds.width());
-    dbg!(bounds.height());
 
     let lerp_bounds = |x_frac, y_frac| {
         assert!(x_frac >= 0.);
@@ -80,7 +75,8 @@ pub fn run<R: BufRead + Seek>(bounds: Rect, input: &mut R) -> Result<Vec<Point>,
             x = x_range.end;
 
             if let Some((x_frac, y_frac)) = centre_of_mass_in_region(x_range, y_range.clone()) {
-                points.push(lerp_bounds(x_frac, y_frac));
+                // Need to invert y, since image is positive down and coords are positive up
+                points.push(lerp_bounds(x_frac, 1. - y_frac));
             }
         }
     }

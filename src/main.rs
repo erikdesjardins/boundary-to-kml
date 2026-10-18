@@ -1,10 +1,12 @@
 use anyhow::Error;
 use geo::{Rect, coord};
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{self, BufReader, BufWriter};
 
 mod extract;
 mod opt;
+mod coord;
+mod kml;
 
 #[cfg(test)]
 mod tests;
@@ -24,6 +26,7 @@ fn main() -> Result<(), Error> {
     match command {
         opt::Command::Extract { bounds, input } => {
             let mut input = BufReader::new(File::open(input)?);
+            let mut output = BufWriter::new(io::stdout().lock());
 
             let bounds = Rect::new(
                 coord! { x: bounds.x_min, y: bounds.y_min },
@@ -32,8 +35,11 @@ fn main() -> Result<(), Error> {
 
             let points = extract::run(bounds, &mut input)?;
 
-            // TODO: implement proper output
-            dbg!(points);
+            let converter = coord::Converter::new();
+
+            let points = points.into_iter().map(|p| converter.convert_ontario_to_wgs84(p)).collect::<Vec<_>>();
+
+            kml::emit(&points, &mut output)?;
 
             Ok(())
         }
