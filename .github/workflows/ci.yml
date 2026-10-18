@@ -42,36 +42,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: rustup toolchain install stable --profile minimal
-      - run: rustup target add x86_64-unknown-linux-musl
-      - run: sudo apt-get install musl-tools
 
-      - run: cargo build --release --target=x86_64-unknown-linux-musl
-      - run: strip target/x86_64-unknown-linux-musl/release/boundary-to-kml
-      - run: ls -lh target/x86_64-unknown-linux-musl/release/boundary-to-kml
+      - run: cargo build --release --target=x86_64-unknown-linux-gnu
+      - run: strip target/x86_64-unknown-linux-gnu/release/boundary-to-kml
+      - run: ls -lh target/x86_64-unknown-linux-gnu/release/boundary-to-kml
 
       - uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: target/x86_64-unknown-linux-musl/release/boundary-to-kml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-windows:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-      - run: rustup toolchain install stable --profile minimal
-
-      - run: cargo build --release
-        env:
-          RUSTFLAGS: -Ctarget-feature=+crt-static
-      - run: dir target/release/boundary-to-kml.exe
-
-      - uses: softprops/action-gh-release@v3
-        if: github.ref_type == 'tag'
-        with:
-          files: target/release/boundary-to-kml.exe
+          files: target/x86_64-unknown-linux-gnu/release/boundary-to-kml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
