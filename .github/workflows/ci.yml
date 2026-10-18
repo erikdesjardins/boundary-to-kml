@@ -53,26 +53,3 @@ jobs:
           files: target/x86_64-unknown-linux-gnu/release/boundary-to-kml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-windows:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-      - run: rustup toolchain install stable --profile minimal
-      - run: winget install -e --id SQLite.SQLite --disable-interactivity --accept-source-agreements
-      # Manually add WinGet packages to PATH since it would otherwise require a shell restart
-      - run: echo "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" >> $env:GITHUB_PATH
-
-      - run: cargo build --release
-        env:
-          RUSTFLAGS: -Ctarget-feature=+crt-static
-      - run: dir target/release/boundary-to-kml.exe
-
-      - uses: softprops/action-gh-release@v3
-        if: github.ref_type == 'tag'
-        with:
-          files: target/release/boundary-to-kml.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
