@@ -63,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: rustup toolchain install stable --profile minimal
-      - run: winget install -e --id SQLite.SQLite
+      - run: winget install -e --id SQLite.SQLite --disable-interactivity --accept-source-agreements
 
       - run: cargo build --release
         env:
