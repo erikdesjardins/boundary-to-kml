@@ -42,17 +42,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: rustup toolchain install stable --profile minimal
-      - run: rustup target add x86_64-unknown-linux-musl
-      - run: sudo apt-get install musl-tools musl-dev g++
 
-      - run: cargo build --release --target=x86_64-unknown-linux-musl
-      - run: strip target/x86_64-unknown-linux-musl/release/boundary-to-kml
-      - run: ls -lh target/x86_64-unknown-linux-musl/release/boundary-to-kml
+      - run: cargo build --release --target=x86_64-unknown-linux-gnu
+      - run: strip target/x86_64-unknown-linux-gnu/release/boundary-to-kml
+      - run: ls -lh target/x86_64-unknown-linux-gnu/release/boundary-to-kml
 
       - uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: target/x86_64-unknown-linux-musl/release/boundary-to-kml
+          files: target/x86_64-unknown-linux-gnu/release/boundary-to-kml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
