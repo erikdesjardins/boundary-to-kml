@@ -1,7 +1,7 @@
+use crate::coord;
 use anyhow::Error;
 use geo::Point;
 use std::io::{BufWriter, Write};
-use crate::coord;
 
 // The offset from each detected point to the tips of each cross drawn at that point.
 // Thus, the cross will be twice this size from tip to tip.
@@ -19,13 +19,31 @@ pub fn emit(
     writeln!(output, "<name>Test points</name>")?;
     writeln!(output, "<MultiGeometry>")?;
     for a in points {
-        let a_plus = modify_in_m(*a, conv, |a| Point::new(a.x() + CROSS_OFFSET, a.y() + CROSS_OFFSET));
-        let a_minus = modify_in_m(*a, conv, |a| Point::new(a.x() - CROSS_OFFSET, a.y() - CROSS_OFFSET));
+        let a_plus = modify_in_m(*a, conv, |a| {
+            Point::new(a.x() + CROSS_OFFSET, a.y() + CROSS_OFFSET)
+        });
+        let a_minus = modify_in_m(*a, conv, |a| {
+            Point::new(a.x() - CROSS_OFFSET, a.y() - CROSS_OFFSET)
+        });
         writeln!(output, "<LineString>")?;
-        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a_minus.x(), a.y(), a_plus.x(), a.y())?;
+        writeln!(
+            output,
+            "<coordinates>{},{} {},{}</coordinates>",
+            a_minus.x(),
+            a.y(),
+            a_plus.x(),
+            a.y()
+        )?;
         writeln!(output, "</LineString>")?;
         writeln!(output, "<LineString>")?;
-        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a.x(), a_minus.y(), a.x(), a_plus.y())?;
+        writeln!(
+            output,
+            "<coordinates>{},{} {},{}</coordinates>",
+            a.x(),
+            a_minus.y(),
+            a.x(),
+            a_plus.y()
+        )?;
         writeln!(output, "</LineString>")?;
     }
     writeln!(output, "</MultiGeometry>")?;

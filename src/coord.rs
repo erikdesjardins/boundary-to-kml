@@ -12,7 +12,10 @@ impl Converter {
         let wgs84 = "EPSG:4326"; // WGS84
         let ontario_to_wgs84 = Proj::new_known_crs(&ontario, &wgs84, None).unwrap();
         let wgs84_to_ontario = Proj::new_known_crs(&wgs84, &ontario, None).unwrap();
-        Self { ontario_to_wgs84, wgs84_to_ontario }
+        Self {
+            ontario_to_wgs84,
+            wgs84_to_ontario,
+        }
     }
 
     pub fn convert_ontario_to_wgs84(&self, point: Point) -> Point {

@@ -3,10 +3,10 @@ use geo::{Rect, coord};
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter};
 
-mod extract;
-mod opt;
 mod coord;
+mod extract;
 mod kml;
+mod opt;
 
 #[cfg(test)]
 mod tests;
@@ -37,7 +37,10 @@ fn main() -> Result<(), Error> {
 
             let conv = coord::Converter::new();
 
-            let points = points.into_iter().map(|p| conv.convert_ontario_to_wgs84(p)).collect::<Vec<_>>();
+            let points = points
+                .into_iter()
+                .map(|p| conv.convert_ontario_to_wgs84(p))
+                .collect::<Vec<_>>();
 
             kml::emit(&points, &conv, &mut output)?;
 
