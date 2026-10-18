@@ -1,14 +1,16 @@
 use anyhow::Error;
 use geo::Point;
 use std::io::{BufWriter, Write};
+use crate::coord;
 
-// The offset (in degrees) from each detected point to the tips of each cross drawn at that point.
-// Note that this isn't a consistent size, since the length of 1 degree of longitude differs at each latitude.
-// TODO: scale this based on the coords of the point.
-const CROSS_OFFSET: f64 = 0.0001; // ~11m
+// The offset from each detected point to the tips of each cross drawn at that point.
+// Thus, the cross will be twice this size from tip to tip.
+// TODO: although EPSG:5321 is in meters (?), this actually results in a 9m x 11m cross.
+const CROSS_OFFSET: f64 = 5.; // meters
 
 pub fn emit(
     points: &[Point],
+    conv: &coord::Converter,
     output: &mut BufWriter<impl Write>,
 ) -> Result<(), Error> {
     writeln!(output, r#"<?xml version="1.0" encoding="UTF-8"?>"#)?;
@@ -17,15 +19,21 @@ pub fn emit(
     writeln!(output, "<name>Test points</name>")?;
     writeln!(output, "<MultiGeometry>")?;
     for a in points {
+        let a_plus = modify_in_m(*a, conv, |a| Point::new(a.x() + CROSS_OFFSET, a.y() + CROSS_OFFSET));
+        let a_minus = modify_in_m(*a, conv, |a| Point::new(a.x() - CROSS_OFFSET, a.y() - CROSS_OFFSET));
         writeln!(output, "<LineString>")?;
-        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a.x() - CROSS_OFFSET, a.y(), a.x() + CROSS_OFFSET, a.y())?;
+        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a_minus.x(), a.y(), a_plus.x(), a.y())?;
         writeln!(output, "</LineString>")?;
         writeln!(output, "<LineString>")?;
-        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a.x(), a.y() - CROSS_OFFSET, a.x(), a.y() + CROSS_OFFSET)?;
+        writeln!(output, "<coordinates>{},{} {},{}</coordinates>", a.x(), a_minus.y(), a.x(), a_plus.y())?;
         writeln!(output, "</LineString>")?;
     }
     writeln!(output, "</MultiGeometry>")?;
     writeln!(output, "</Placemark>")?;
     writeln!(output, "</kml>")?;
     Ok(())
+}
+
+fn modify_in_m(point: Point, conv: &coord::Converter, f: impl FnOnce(Point) -> Point) -> Point {
+    conv.convert_ontario_to_wgs84(f(conv.convert_wgs84_to_ontario(point)))
 }

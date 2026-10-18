@@ -35,11 +35,11 @@ fn main() -> Result<(), Error> {
 
             let points = extract::run(bounds, &mut input)?;
 
-            let converter = coord::Converter::new();
+            let conv = coord::Converter::new();
 
-            let points = points.into_iter().map(|p| converter.convert_ontario_to_wgs84(p)).collect::<Vec<_>>();
+            let points = points.into_iter().map(|p| conv.convert_ontario_to_wgs84(p)).collect::<Vec<_>>();
 
-            kml::emit(&points, &mut output)?;
+            kml::emit(&points, &conv, &mut output)?;
 
             Ok(())
         }
