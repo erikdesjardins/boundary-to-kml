@@ -10,8 +10,8 @@ impl Converter {
     pub fn new() -> Self {
         let ontario = "EPSG:5321"; // NAD83(CSRS) / Teranet Ontario Lambert
         let wgs84 = "EPSG:4326"; // WGS84
-        let ontario_to_wgs84 = Proj::new_known_crs(&ontario, &wgs84, None).unwrap();
-        let wgs84_to_ontario = Proj::new_known_crs(&wgs84, &ontario, None).unwrap();
+        let ontario_to_wgs84 = Proj::new_known_crs(ontario, wgs84, None).unwrap();
+        let wgs84_to_ontario = Proj::new_known_crs(wgs84, ontario, None).unwrap();
         Self {
             ontario_to_wgs84,
             wgs84_to_ontario,
